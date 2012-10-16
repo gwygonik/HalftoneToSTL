@@ -13,7 +13,7 @@ import javax.swing.filechooser.FileFilter;
 @SuppressWarnings("serial")
 public class HalftoneImageToSTL extends PApplet {
 
-	String VERSION = "1.0.2";
+	String VERSION = "1.0.4";
 	
 	UGeometry primitives,shapes,primitives2;
 	UNav3D nav;
@@ -286,35 +286,40 @@ public class HalftoneImageToSTL extends PApplet {
 	
 	// handler for load image button
 	private void LOAD_IMAGE() {
+		// disable ui while loading (mouse handler)
+		nav.enabled = false;
 		// create java file chooser dialog
-      try {
-        SwingUtilities.invokeAndWait( new Runnable() {
-          @Override
-          public void run() {
-            final JFileChooser chooser = new JFileChooser();
-            chooser.setFileFilter(new ImageFilter());
-            final int returnVal = chooser.showOpenDialog( null );
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-              img2 = loadImage(chooser.getSelectedFile().toString());
-              outputPath = chooser.getSelectedFile().getParent() + java.io.File.separatorChar;
-              outputFilename = chooser.getSelectedFile().getName().substring(0, chooser.getSelectedFile().getName().lastIndexOf(".")).replaceAll(" ", "_");
-              gui.setText("OUTPUT_NAME", outputFilename);
-              isImageLoaded = true;
-              GRID_STEPS(NUM_STEPS);
-
-              // show rest of UI
-              groupBasic.setPosition(10f, 60f);
-              groupColors.setPosition(10f, 115f);
-              groupHeight.setPosition(10f, 270f);
-              groupOutput.setPosition(10f,400f);
-            }
-          }
-        } );
-      }
-      catch ( final Exception e ) {
-        UUtil.log( "Error whilst loading image: " + e.getMessage() );
-      }
+		try {
+		    SwingUtilities.invokeAndWait( new Runnable() {
+		      @Override
+		      public void run() {
+		        final JFileChooser chooser = new JFileChooser();
+		        chooser.setFileFilter(new ImageFilter());
+		        final int returnVal = chooser.showOpenDialog( null );
+		
+		        if (returnVal == JFileChooser.APPROVE_OPTION) {
+		          img2 = loadImage(chooser.getSelectedFile().toString());
+		          outputPath = chooser.getSelectedFile().getParent() + java.io.File.separatorChar;
+		          outputFilename = chooser.getSelectedFile().getName().substring(0, chooser.getSelectedFile().getName().lastIndexOf(".")).replaceAll(" ", "_");
+		      gui.setText("OUTPUT_NAME", outputFilename);
+		      isImageLoaded = true;
+		      GRID_STEPS(NUM_STEPS);
+		
+		      // show rest of UI
+		      groupBasic.setPosition(10f, 60f);
+		      groupColors.setPosition(10f, 115f);
+		      groupHeight.setPosition(10f, 270f);
+		      groupOutput.setPosition(10f,400f);
+		      
+		      // re-enable model UI
+		          nav.enabled = true;
+		        }
+		      }
+		    } );
+		}
+		catch ( final Exception e ) {
+		    UUtil.log( "Error whilst loading image: " + e.getMessage() );
+		}
     }
 	
 	// handler for invert image toggle
