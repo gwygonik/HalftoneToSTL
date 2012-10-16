@@ -7,6 +7,7 @@ import processing.opengl.*;
 import unlekker.modelbuilder.*;
 import unlekker.util.*;
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 @SuppressWarnings("serial")
@@ -286,25 +287,35 @@ public class HalftoneImageToSTL extends PApplet {
 	// handler for load image button
 	private void LOAD_IMAGE() {
 		// create java file chooser dialog
-		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(new ImageFilter());
-		int returnVal = chooser.showOpenDialog(null);
-		if (returnVal == JFileChooser.APPROVE_OPTION) 
-		{
-		  img2 = loadImage(chooser.getSelectedFile().toString());
-		  outputPath = chooser.getSelectedFile().getParent() + java.io.File.separatorChar;
-		  outputFilename = chooser.getSelectedFile().getName().substring(0, chooser.getSelectedFile().getName().lastIndexOf(".")).replaceAll(" ", "_");
-		  gui.setText("OUTPUT_NAME", outputFilename);
-		  isImageLoaded = true;
-		  GRID_STEPS(NUM_STEPS);
+      try {
+        SwingUtilities.invokeAndWait( new Runnable() {
+          @Override
+          public void run() {
+            final JFileChooser chooser = new JFileChooser();
+            chooser.setFileFilter(new ImageFilter());
+            final int returnVal = chooser.showOpenDialog( null );
 
-		  // show rest of UI
-		  groupBasic.setPosition(10f, 60f);
-		  groupColors.setPosition(10f, 115f);
-		  groupHeight.setPosition(10f, 270f);
-		  groupOutput.setPosition(10f,400f);
-		}
-	}
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+              img2 = loadImage(chooser.getSelectedFile().toString());
+              outputPath = chooser.getSelectedFile().getParent() + java.io.File.separatorChar;
+              outputFilename = chooser.getSelectedFile().getName().substring(0, chooser.getSelectedFile().getName().lastIndexOf(".")).replaceAll(" ", "_");
+              gui.setText("OUTPUT_NAME", outputFilename);
+              isImageLoaded = true;
+              GRID_STEPS(NUM_STEPS);
+
+              // show rest of UI
+              groupBasic.setPosition(10f, 60f);
+              groupColors.setPosition(10f, 115f);
+              groupHeight.setPosition(10f, 270f);
+              groupOutput.setPosition(10f,400f);
+            }
+          }
+        } );
+      }
+      catch ( final Exception e ) {
+        UUtil.log( "Error whilst loading image: " + e.getMessage() );
+      }
+    }
 	
 	// handler for invert image toggle
 	private void INVERT_IMAGE(boolean val) {
